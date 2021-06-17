@@ -1,38 +1,67 @@
-﻿# AD2 - Questão 1
-#Aluno: Sebastiao Alves Polo: Sao Fidelis
+import struct
 
-# Subprogramas
+def imprimirArquivo(nomeArquivo):
+    with open(nomeArquivo + ".txt", "r") as arquivo:
+        for linha in arquivo:
+            print(linha, end="")
+    print("")
 
-def procura(nm):
-    def localizaNoVetor(pals):
-        if pals == []:
-            return ""
-        else:
-            pal = pals[0]
-            for p in pals:
-                if len(p) > len(pal):
-                    pal = p
-            return pal
+def tomouDuasDoses(nome,nomeArquivoDuasDoses):
+    tomouDoses = False
 
-    dados = open(nm, "r")
-    palavras = dados.readline().strip().split()
-    qualLinha = contagemDeLinhasLidas= 1
-    maior = localizaNoVetor(palavras)
-    for linha in dados:
-        contagemDeLinhasLidas += 1
-        maiorAtual = localizaNoVetor(linha.strip().split())
-        if len(maiorAtual) > len(maior):
-            maior = maiorAtual
-            qualLinha = contagemDeLinhasLidas
-    dados.close()
+    with open(nomeArquivoDuasDoses + ".txt", "r") as arquivoDuasDoses:
+        for linha in arquivoDuasDoses:
+            dados = linha.split("#")
+            if (len(dados) > 1):
+                if(nome == dados[0]):
+                    tomouDoses = True
+                    break
+    return tomouDoses
 
-    return maior, qualLinha
+def criarArquivoDuasDoses(nomeArquivoDoses,nomeArquivoDuasDoses):
+    with open(nomeArquivoDuasDoses+".txt", "w") as arquivoDuasDoses:
+        with open(nomeArquivoDoses + ".txt", "r") as  arquivoDoses:
+            for linha in arquivoDoses:
+                dados = linha.split("#")
+                if(len(dados)>1):
+                    nome = dados[0]
+                    vacina = dados[1]
+                    dose = int(dados[2])
 
+                    if(dose == 2):
+                        arquivoDuasDoses.write(nome+"#"+vacina+"\n")
 
-# Programa Principal
+def processarArquivosUmaDose(nomeArquivoDoses,nomeArquivoDuasDoses):
+    for nomeVacina in ["Coronavac","Oxford", "Pfizer", "Sputnik","Covax", "Jansen"]:
+        with open(nomeVacina + ".txt", "w") as arquivoUmaDose:
+            with open(nomeArquivoDoses + ".txt", "r") as  arquivoDoses:
+                for linha in arquivoDoses:
+                    dados = linha.split("#")
+                    if (len(dados) > 1):
+                        nome = dados[0]
+                        vacina = dados[1]
 
-nome = input()
-maiorPalavra, posicaoDaLinha = procura(nome)
-print("Palavra mais comprida contida no arquivo:", maiorPalavra)
-print("Comprimento:", len(maiorPalavra), "caracter(es)")
-print("Localizada na linha", posicaoDaLinha,"do arquivo")
+                        if(vacina == nomeVacina and tomouDuasDoses(nome,nomeArquivoDuasDoses) == False):
+                            arquivoUmaDose.write(nome+"\n")
+
+        print("Vacinados com uma dose da",nomeVacina, "em", nomeArquivoDoses+":")
+        imprimirArquivo(nomeVacina)
+
+def main():
+    nomeArquivoDoses = input()
+    nomeArquivoDuasDoses = "duasDoses"
+
+    try:
+        criarArquivoDuasDoses(nomeArquivoDoses,  nomeArquivoDuasDoses)
+
+        print("Listagem das Aplicações de Vacina",nomeArquivoDoses+":")
+        imprimirArquivo(nomeArquivoDoses)
+
+        print("Vacinados com duas doses em",nomeArquivoDoses+":")
+        imprimirArquivo(nomeArquivoDuasDoses)
+
+        processarArquivosUmaDose(nomeArquivoDoses, nomeArquivoDuasDoses)
+    except IOError:
+        print('Um dos arquivos não foi encontrado.')
+
+main()
